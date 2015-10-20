@@ -12,6 +12,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
 import pers.magee.emap.core.Url;
 
 public class ProxyerHandler {
@@ -40,42 +43,45 @@ public class ProxyerHandler {
 		String requestOriginal = null;
 		requestOriginal = new String(requestByteArray, "UTF-8");
 		System.out.println("the handler get String =" + requestOriginal);
+		String message = "";
+		if (requestOriginal != null && requestOriginal.length() > 0) {
+			new JSONObject();
+			JSONObject jsonobj =  JSONObject.fromObject(requestOriginal);
+			System.out.println(jsonobj.get("params")+"---"+jsonobj.getString("content"));
+			String params = jsonobj.getString("params");
+			String intface = null;
+			String method = null;
+			int index = params.indexOf("&");
+			Map<String, String> pamap = new HashMap();
+			if (index >= 0) {
+				String[] para = params.split("\\&");
+				for (int i = 0; i < para.length; i++) {
+					int j = para[i].indexOf("=");
+					if (j >= 0) {
+						pamap.put(para[i].substring(0, j), para[i].substring(j + 1));
+					}
+				}
+			}
 
-		String intface = null;
-		String method = null;
-		int index = requestOriginal.indexOf("&");
-		Map<String, String> pamap = new HashMap();
-		if (index >= 0) {
-			String[] para = requestOriginal.split("\\&");
-			for (int i = 0; i < para.length; i++) {
-				int j = para[i].indexOf("=");
-				if (j >= 0) {
-					pamap.put(para[i].substring(0, j), para[i].substring(j + 1));
+			intface = pamap.get("Interface") == null ? "" : pamap.get("Interface");
+			method = pamap.get("Method") == null ? "" : pamap.get("Method");
+
+			System.out.println("get interface = " + intface + "  ;method= " + method);
+
+			if (intface != null && intface.length() > 0) {
+				try {
+					Object object;
+					Class c = Class.forName(intface);
+					Method m = c.getDeclaredMethod(method);
+					Constructor con = c.getDeclaredConstructor();
+					object = con.newInstance();
+					message = (String) m.invoke(object);
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
 			}
 		}
 
-		intface = pamap.get("Interface") == null ? "" : pamap.get("Interface");
-		method = pamap.get("Method") == null ? "" : pamap.get("Method");
-
-		System.out.println("get interface = " + intface + "  ;method= " + method);
-		
-		String message = "";
-
-		if (intface != null && intface.length() > 0) {
-			try {
-				Object object;
-				Class c = Class.forName(intface);
-				Method m = c.getDeclaredMethod(method);
-				Constructor con = c.getDeclaredConstructor();
-				object = con.newInstance();
-				message = (String)m.invoke(object);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		
-		
 		response.getWriter().write(message);
 
 	}
