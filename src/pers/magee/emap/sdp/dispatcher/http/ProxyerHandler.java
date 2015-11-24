@@ -49,6 +49,7 @@ public class ProxyerHandler {
 			JSONObject jsonobj =  JSONObject.fromObject(requestOriginal);
 			System.out.println(jsonobj.get("params")+"---"+jsonobj.getString("content"));
 			String params = jsonobj.getString("params");
+			String content = jsonobj.getString("content");
 			String intface = null;
 			String method = null;
 			int index = params.indexOf("&");
@@ -72,16 +73,19 @@ public class ProxyerHandler {
 				try {
 					Object object;
 					Class c = Class.forName(intface);
-					Method m = c.getDeclaredMethod(method);
+					Method m = c.getDeclaredMethod(method,new Class[] {String.class});
+					Object[] arguments = new Object[] { new String()};
+					arguments[0] = content;
 					Constructor con = c.getDeclaredConstructor();
 					object = con.newInstance();
-					message = (String) m.invoke(object);
+					message = (String) m.invoke(object,arguments);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
 		}
-
+		response.addHeader("Access-Control-Allow-Origin", "*");
+		response.setCharacterEncoding("UTF-8");
 		response.getWriter().write(message);
 
 	}
