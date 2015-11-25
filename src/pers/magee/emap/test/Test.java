@@ -30,5 +30,18 @@ public class Test {
 		
 		return "";
 	}
+	public String setJar2(String params){
+		String fileUrl = "file:D:/Development/testjar2.jar";
+		MyURLClassLoader m;
+		try {
+			m = new MyURLClassLoader(fileUrl);
+			
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return "";
+	}
 
 }
