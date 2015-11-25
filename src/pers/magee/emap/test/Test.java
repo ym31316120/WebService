@@ -1,5 +1,9 @@
 package pers.magee.emap.test;
 
+import java.net.MalformedURLException;
+
+import pers.magee.emap.loader.MyURLClassLoader;
+
 public class Test {
 
 	public String getSliderImageList(String params) {
@@ -12,6 +16,19 @@ public class Test {
 		
 
 		return imageList;
+	}
+	public String setJar(String params){
+		String fileUrl = "file:D:/Development/testjar.jar";
+		MyURLClassLoader m;
+		try {
+			m = new MyURLClassLoader(fileUrl);
+			
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return "";
 	}
 
 }

@@ -16,6 +16,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import pers.magee.emap.core.Url;
+import pers.magee.emap.loader.MyURLClassLoader;
 
 public class ProxyerHandler {
 
@@ -23,6 +24,7 @@ public class ProxyerHandler {
 
 	public void handle(Url queryUrl, HttpServletRequest request, HttpServletResponse response)
 			throws IOException, ServletException {
+		ClassLoader loader = MyURLClassLoader.loader;
 		BufferedInputStream input = null;
 		ByteArrayOutputStream byteOutput = new ByteArrayOutputStream(2048);
 
@@ -72,7 +74,8 @@ public class ProxyerHandler {
 			if (intface != null && intface.length() > 0) {
 				try {
 					Object object;
-					Class c = Class.forName(intface);
+					Class c = Class.forName(intface,true,loader);
+					
 					Method m = c.getDeclaredMethod(method,new Class[] {String.class});
 					Object[] arguments = new Object[] { new String()};
 					arguments[0] = content;
@@ -80,6 +83,7 @@ public class ProxyerHandler {
 					object = con.newInstance();
 					message = (String) m.invoke(object,arguments);
 				} catch (Exception e) {
+					System.out.println("服务获取失败，没有找到对应的类");
 					e.printStackTrace();
 				}
 			}
